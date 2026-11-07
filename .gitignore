@@ -1,0 +1,22 @@
+# 依存関係
+node_modules/
+.pnp*
+
+# Next.js のビルド出力
+/.next/
+/out/
+/build
+
+# 環境変数ファイル
+.env
+.env*.local
+
+# キャッシュやログ
+*.log
+.eslintcache
+*.tsbuildinfo
+
+# その他（OS固有ファイル、Vercelなど）
+.DS_Store
+.vercel
+next-env.d.ts
