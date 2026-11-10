@@ -190,15 +190,18 @@ MojiFix/
 │   └── copilot-instructions.md
 │
 ├── docs/
+│   ├── index.md
 │   ├── specification.md
 │   ├── design.md
 │   ├── interfaces.md
-│   └── copilot/
-│       ├── A-frontend.md
-│       ├── B-encoding-engine.md
-│       └── C-application-logic.md
+│   └── development/
+│       ├── frontend.md
+│       ├── encoding-engine.md
+│       └── application-logic.md
 │
 ├── public/
+│   ├── favicon.ico
+│   └── images/
 │
 ├── src/
 │   ├── app/
@@ -210,14 +213,17 @@ MojiFix/
 │   │   ├── layout/
 │   │   ├── editor/
 │   │   ├── converter/
+│   │   ├── analyzer/
 │   │   └── ui/
 │   │
 │   ├── hooks/
-│   │
 │   ├── services/
-│   │
 │   ├── lib/
+│   │   ├── binary/
 │   │   ├── encoding/
+│   │   │   └── engines/
+│   │   ├── platform/
+│   │   ├── unicode/
 │   │   └── utils/
 │   │
 │   ├── constants/
@@ -228,9 +234,12 @@ MojiFix/
 │
 ├── README.md
 ├── package.json
+├── package-lock.json
 ├── tsconfig.json
 └── next.config.ts
 ```
+
+この構成には未実装の機能用の空の雛形も含まれる。ディレクトリやファイルが存在することを、機能が実装済みである根拠として扱わないこと。
 
 既存のディレクトリやファイルを変更する場合は、他の担当者の実装への影響を確認すること。
 

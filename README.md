@@ -4,7 +4,9 @@
 
 Windows・macOS・iOSなどの異なる環境や、異なるアプリケーション間で発生する文字化け・文字表現の違いを調査できることを目指します。
 
-## 主な機能
+## 実装予定の主な機能
+
+以下はプロジェクトの目標機能です。現時点では画面とディレクトリの初期雛形がある段階で、文字コード変換・Unicode解析・互換性解析などの機能はまだ実装されていません。
 
 ### 文字コード変換・再解釈
 - UTF-8
@@ -41,11 +43,11 @@ Windows・macOS・iOSなどの異なる環境や、異なるアプリケーシ�
 | フレームワーク | Next.js |
 | 言語 | TypeScript |
 | UI | React |
-| 文字コード処理 | encoding-japanese |
-| 多言語文字コード処理 | iconv-lite |
+| 文字コード処理 | encoding-japanese（導入候補・未導入） |
+| 多言語文字コード処理 | iconv-lite（導入候補・未導入） |
 | スタイリング | CSS |
-| テスト | Vitest（採用候補） |
-| デプロイ | Vercel |
+| テスト | Vitest（採用候補・未導入） |
+| デプロイ | Vercel（Static Export設定済み） |
 | バージョン管理 | Git / GitHub |
 
 ## 動作方針
@@ -63,8 +65,10 @@ MojiFix/
 ├── .github/
 │   └── copilot-instructions.md
 ├── public/
+│   ├── favicon.ico
+│   └── images/
 ├── docs/
-│   ├── README.md
+│   ├── index.md
 │   ├── specification.md
 │   ├── design.md
 │   ├── interfaces.md
@@ -74,18 +78,31 @@ MojiFix/
 │       └── application-logic.md
 ├── src/
 │   ├── app/
+│   │   ├── layout.tsx
+│   │   ├── page.tsx
+│   │   └── globals.css
 │   ├── components/
+│   │   ├── analyzer/
+│   │   ├── converter/
+│   │   ├── editor/
+│   │   ├── layout/
+│   │   └── ui/
 │   ├── hooks/
 │   ├── services/
 │   ├── lib/
-│   │   ├── encoding/
-│   │   ├── unicode/
-│   │   ├── platform/
 │   │   ├── binary/
+│   │   ├── encoding/
+│   │   │   └── engines/
+│   │   ├── platform/
+│   │   ├── unicode/
 │   │   └── utils/
 │   ├── constants/
 │   └── types/
 ├── tests/
+│   ├── converter/
+│   ├── encoding/
+│   ├── platform/
+│   └── unicode/
 ├── README.md
 ├── package.json
 └── next.config.ts
@@ -119,11 +136,11 @@ npm run dev
 npm run build
 ```
 
-ビルド結果は `out/` に出力される構成を想定しています。
+ビルド結果は `out/` に出力されます。
 
-## 文字コードライブラリ
+## 導入予定の文字コードライブラリ
 
-MojiFixでは、以下の2つのライブラリを利用する方針です。
+以下の2つのライブラリを利用する方針ですが、現時点では依存関係に含まれていません。
 
 ### encoding-japanese
 日本語系文字コードを中心に扱います。
@@ -158,6 +175,7 @@ Windows系コードページ、Macintosh系、多言語文字コードなどの�
 
 ## ドキュメント
 
+- `docs/index.md`：ドキュメント一覧
 - `docs/specification.md`：機能仕様
 - `docs/design.md`：システム設計
 - `docs/interfaces.md`：共通インターフェース

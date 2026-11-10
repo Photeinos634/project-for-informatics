@@ -13,9 +13,9 @@ MojiFixはNext.js App Routerを使用したブラウザベースの文字コー�
 | Framework | Next.js |
 | Language | TypeScript |
 | UI | React |
-| Encoding Library | encoding-japanese |
-| Extended Encoding Library | iconv-lite |
-| Testing | Vitest（採用候補） |
+| Encoding Library | encoding-japanese（導入候補・未導入） |
+| Extended Encoding Library | iconv-lite（導入候補・未導入） |
+| Testing | Vitest（採用候補・未導入） |
 | Deployment | Vercel Static Export |
 
 ## 3. ディレクトリ構成
@@ -31,7 +31,7 @@ MojiFix/
 │   └── images/
 │
 ├── docs/
-│   ├── README.md
+│   ├── index.md
 │   ├── specification.md
 │   ├── design.md
 │   ├── interfaces.md
@@ -152,6 +152,8 @@ MojiFix/
 ├── README.md
 └── LICENSE
 ```
+
+この構成は現在のファイル配置を示す。空の雛形が存在するモジュールもあり、ディレクトリやファイルの存在は機能の実装済みを意味しない。
 
 ## 4. モジュール設計
 
