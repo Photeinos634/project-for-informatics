@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 1, "column": 0}, "map": {"version":3,"sources":["file:///Users/Codes/project-for-informatics/src/app/global.css"],"sourcesContent":["@import \"tailwindcss\";\n\n:root {\n    --background: #ffffff;\n    --foreground: #171717;\n}\n\n@media (prefers-color-scheme: dark) {\n    :root {\n        --background: #0a0a0a;\n        --foreground: #ededed;\n    }\n}\n\nbody {\n    color: var(--foreground);\n    background: var(--background);\n    font-family: Arial, Helvetica, sans-serif;\n}\n"],"names":[],"mappings":"AAEA;;;;;AAKA;EACI;;;;;;AAMJ"}}]
-}

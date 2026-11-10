@@ -1,6 +1,0 @@
-{
-  "version": 3,
-  "sources": [],
-  "sections": [
-    {"offset": {"line": 10, "column": 0}, "map": {"version":3,"sources":["file:///Users/Codes/project-for-informatics/src/app/page.tsx"],"sourcesContent":["export default function Home() {\n    return (\n        <div>\n            <h1>トップページ</h1>\n            <p>ここが page.tsx の中身です。</p>\n        </div>\n    );\n}\n"],"names":["Home"],"mappings":";;;;;;AAAe,SAASA;IACpB,qBACI,8OAAC;;0BACG,8OAAC;0BAAG;;;;;;0BACJ,8OAAC;0BAAE;;;;;;;;;;;;AAGf"}}]
-}
