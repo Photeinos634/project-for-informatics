@@ -1,0 +1,48 @@
+name: Issue Notification
+
+on:
+    issues:
+        types:
+            - opened
+            - closed
+            - reopened
+
+jobs:
+    notify-discord:
+        runs-on: ubuntu-latest
+
+        steps:
+            - name: Notify Discord
+              env:
+                  DISCORD_WEBHOOK_URL: ${{ secrets.DISCORD_ISSUE_WEBHOOK_URL }}
+                  ACTION: ${{ github.event.action }}
+                  ISSUE_TITLE: ${{ github.event.issue.title }}
+                  ISSUE_URL: ${{ github.event.issue.html_url }}
+                  ISSUE_NUMBER: ${{ github.event.issue.number }}
+                  AUTHOR: ${{ github.event.issue.user.login }}
+              run: |
+                  jq -n \
+                    --arg action "$ACTION" \
+                    --arg title "$ISSUE_TITLE" \
+                    --arg number "#$ISSUE_NUMBER" \
+                    --arg author "$AUTHOR" \
+                    --arg url "$ISSUE_URL" \
+                    '{
+                      embeds: [{
+                        title: ("Issue " + $action),
+                        description: ($number + " " + $title),
+                        fields: [
+                          {
+                            name: "Author",
+                            value: $author,
+                            inline: true
+                          }
+                        ],
+                        url: $url
+                      }]
+                    }' |
+                  curl \
+                    -H "Content-Type: application/json" \
+                    -X POST \
+                    -d @- \
+                    "$DISCORD_WEBHOOK_URL"
