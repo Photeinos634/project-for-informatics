@@ -113,7 +113,7 @@ MojiFix/
 ## 開発環境の準備
 
 ### 必要なもの
-- Node.js
+- Node.js 20.9.0以上
 - npm
 - Git
 - GitHubアカウント
