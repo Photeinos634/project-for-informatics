@@ -1,6 +1,6 @@
-﻿import { describe, expect, it } from "vitest";
-import { EncodingJapaneseEngine } from "./encodingJapaneseEngine";
-import { IconvLiteEngine } from "./iconvLiteEngine";
+import { describe, expect, it } from "vitest";
+import { EncodingJapaneseEngine } from "@/lib/encoding/engines/encodingJapaneseEngine";
+import { IconvLiteEngine } from "@/lib/encoding/engines/iconvLiteEngine";
 
 describe("Encoding Engine Comparison", () => {
   const japaneseEngine = new EncodingJapaneseEngine();

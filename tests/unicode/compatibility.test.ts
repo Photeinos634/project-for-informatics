@@ -1,6 +1,6 @@
 
 import { describe, expect, it } from "vitest";
-import { analyzeCompatibility } from "./compatibility";
+import { analyzeCompatibility } from "@/lib/unicode/compatibility";
 
 describe("analyzeCompatibility", () => {
   it("通常の文字は互換文字ではないと判定できる", () => {

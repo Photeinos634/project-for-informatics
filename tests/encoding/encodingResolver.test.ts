@@ -1,11 +1,11 @@
-﻿import { beforeAll, describe, expect, it } from "vitest";
+import { beforeAll, describe, expect, it } from "vitest";
 import type { EncodingDefinition } from "@/types/encoding";
-import { registerEncoding } from "./encodingRegistry";
+import { registerEncoding } from "@/lib/encoding/encodingRegistry";
 import {
   registerEncodingEngine,
   resolveEncodingEngine,
-} from "./encodingResolver";
-import { EncodingJapaneseEngine } from "./engines/encodingJapaneseEngine";
+} from "@/lib/encoding/encodingResolver";
+import { EncodingJapaneseEngine } from "@/lib/encoding/engines/encodingJapaneseEngine";
 
 const definition: EncodingDefinition = {
   id: "Windows-31J",

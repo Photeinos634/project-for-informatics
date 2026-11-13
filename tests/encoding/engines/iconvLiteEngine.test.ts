@@ -1,5 +1,5 @@
-﻿import { describe, expect, it } from "vitest";
-import { IconvLiteEngine } from "./iconvLiteEngine";
+import { describe, expect, it } from "vitest";
+import { IconvLiteEngine } from "@/lib/encoding/engines/iconvLiteEngine";
 
 describe("IconvLiteEngine", () => {
   const engine = new IconvLiteEngine();

@@ -1,5 +1,5 @@
-﻿import { describe, expect, it } from "vitest";
-import { analyzeSurrogates } from "./surrogate";
+import { describe, expect, it } from "vitest";
+import { analyzeSurrogates } from "@/lib/unicode/surrogate";
 
 describe("analyzeSurrogates", () => {
   it("絵文字のサロゲートペアを検出できる", () => {

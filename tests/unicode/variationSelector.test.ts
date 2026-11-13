@@ -1,5 +1,5 @@
-﻿import { describe, expect, it } from "vitest";
-import { analyzeVariationSelectors } from "./variationSelector";
+import { describe, expect, it } from "vitest";
+import { analyzeVariationSelectors } from "@/lib/unicode/variationSelector";
 
 describe("analyzeVariationSelectors", () => {
   it("基本的な異体字セレクタを検出できる", () => {

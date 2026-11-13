@@ -1,5 +1,5 @@
-﻿import { describe, expect, it } from "vitest";
-import { EncodingJapaneseEngine } from "./encodingJapaneseEngine";
+import { describe, expect, it } from "vitest";
+import { EncodingJapaneseEngine } from "@/lib/encoding/engines/encodingJapaneseEngine";
 
 describe("EncodingJapaneseEngine", () => {
   const engine = new EncodingJapaneseEngine();

@@ -1,15 +1,15 @@
-﻿import { describe, expect, it, beforeEach } from "vitest";
+import { describe, expect, it, beforeEach } from "vitest";
 
 import {
   getEncodingMetadata,
   getAllEncodingMetadata,
   canEncode,
   canDecode,
-} from "./encodingMetadata";
+} from "@/lib/encoding/encodingMetadata";
 
 import {
   registerEncoding,
-} from "./encodingRegistry";
+} from "@/lib/encoding/encodingRegistry";
 
 const testDefinitions = [
   {

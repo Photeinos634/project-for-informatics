@@ -1,7 +1,7 @@
-﻿import { describe, expect, it } from "vitest";
-import { initializeEncoding } from "./encodingInitializer";
-import { getAllEncodings } from "./encodingRegistry";
-import { resolveEncodingEngine } from "./encodingResolver";
+import { describe, expect, it } from "vitest";
+import { initializeEncoding } from "@/lib/encoding/encodingInitializer";
+import { getAllEncodings } from "@/lib/encoding/encodingRegistry";
+import { resolveEncodingEngine } from "@/lib/encoding/encodingResolver";
 
 describe("encodingInitializer", () => {
   it("初期化によって文字コードが登録される", () => {

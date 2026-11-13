@@ -12,6 +12,12 @@ export default defineConfig({
   },
   test: {
     environment: "node",
-    include: ["src/**/*.test.ts"],
+    include: [
+      "tests/encoding/encodingInitializer.test.ts",
+      "tests/encoding/encodingMetadata.test.ts",
+      "tests/encoding/encodingResolver.test.ts",
+      "tests/encoding/engines/**/*.test.ts",
+      "tests/unicode/**/*.test.ts",
+    ],
   },
 });
