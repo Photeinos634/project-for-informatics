@@ -1,52 +1,70 @@
-export {};
+
 import type { EncodingId } from "@/types/encoding";
 import type { EncodingEngine } from "./encodingEngine";
-import { getEncoding } from "./encodingRegistry";
+import { getEncoding, getAllEncodings } from "./encodingRegistry";
+import { resolveEncodingAlias } from "./encodingAliases";
 
 /**
- * 登録済みエンジンを管理する
+ * 登録済みエンジンを管理するRegistry
  */
 const engineRegistry = new Map<string, EncodingEngine>();
 
 /**
  * エンジンを登録する
  */
-export function registerEncodingEngine(engine: EncodingEngine): void {
-    if (engineRegistry.has(engine.id)) {
-        throw new Error(`Engine already registered: ${engine.id}`);
-    }
+export function registerEncodingEngine(
+  engine: EncodingEngine
+): void {
+  if (engineRegistry.has(engine.id)) {
+    throw new Error(
+      `Engine already registered: ${engine.id}`
+    );
+  }
 
-    engineRegistry.set(engine.id, engine);
+  engineRegistry.set(engine.id, engine);
 }
 
 /**
  * 文字コードと処理種別からエンジンを解決する
  */
 export function resolveEncodingEngine(
-    encoding: EncodingId,
-    operation: "encode" | "decode",
+  encoding: EncodingId,
+  operation: "encode" | "decode"
 ): EncodingEngine {
-    const definition = getEncoding(encoding);
+  const encodingId = resolveEncodingAlias(
+    encoding,
+    getAllEncodings()
+  );
 
-    if (!definition) {
-        throw new Error(`Unsupported encoding: ${encoding}`);
-    }
+  if (!encodingId) {
+    throw new Error(`Unsupported encoding: ${encoding}`);
+  }
 
-    if (!definition.capabilities[operation]) {
-        throw new Error(`${operation} is not supported: ${encoding}`);
-    }
+  const definition = getEncoding(encodingId);
 
-    const engine = engineRegistry.get(definition.engineId);
+  if (!definition) {
+    throw new Error(`Encoding not registered: ${encodingId}`);
+  }
 
-    if (!engine) {
-        throw new Error(`Engine not registered: ${definition.engineId}`);
-    }
+  if (!definition.capabilities[operation]) {
+    throw new Error(
+      `${operation} is not supported: ${encoding}`
+    );
+  }
 
-    if (!engine.supports(encoding, operation)) {
-        throw new Error(
-            `Engine ${engine.id} does not support ${operation} for ${encoding}`,
-        );
-    }
+  const engine = engineRegistry.get(definition.engineId);
 
-    return engine;
+  if (!engine) {
+    throw new Error(
+      `Engine not registered: ${definition.engineId}`
+    );
+  }
+
+  if (!engine.supports(definition.id, operation)) {
+    throw new Error(
+      `Engine ${engine.id} does not support ${operation} for ${definition.id}`
+    );
+  }
+
+  return engine;
 }
