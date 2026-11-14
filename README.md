@@ -1,185 +1,117 @@
 # MojiFix
 
-**MojiFix** は、文字コードの変換・再解釈・Unicode解析・環境間の文字互換性確認を行うブラウザベースのツールです。
+MojiFixは、文字列を指定した文字コードでバイト列に変換し、その同じバイト列を別の文字コードとしてデコードして文字化けを確認する、ブラウザー内動作のWebアプリケーションです。
 
-Windows・macOS・iOSなどの異なる環境や、異なるアプリケーション間で発生する文字化け・文字表現の違いを調査できることを目指します。
+## 現在の実装
 
-## 実装予定の主な機能
+### 画面から利用できる機能
 
-以下はプロジェクトの目標機能です。現時点では画面とディレクトリの初期雛形がある段階で、文字コード変換・Unicode解析・互換性解析などの機能はまだ実装されていません。
+- テキスト入力と文字コード選択
+- バイト列の再解釈とHEX表示
+- 変換結果・HEXのクリップボードコピー
+- 入力、未対応文字コード、エンコード・デコード失敗の表示
 
-### 文字コード変換・再解釈
+### 登録済み文字コード
+
 - UTF-8
-- Shift_JIS
-- Windows-31J（CP932）
+- Windows-31J（CP932）。`Shift_JIS` などの別名を含む
 - EUC-JP
 - ISO-2022-JP
-- UTF-16系
-- その他の文字コードへの拡張
+- UTF-16LE / UTF-16BE
 
-### Unicode解析
-- NFC / NFD / NFKC / NFKD
-- Unicodeコードポイントの表示
-- 互換文字の確認
-- 異体字セレクタの解析
-- UTF-16サロゲートペアの解析
+`Shift_JIS` とWindows-31J（CP932）は完全に同じ文字集合ではありません。現在は既存Registryの別名定義に従い、`Shift_JIS` をWindows-31Jへ解決します。
 
-### OS・環境間の互換性解析
-- Windows・macOS・iOS向けプリセット
-- 文字コード間の対応状況確認
-- 変換による文字の変化・欠落の確認
-- 文字の置換・非対応文字の検出
+### 実装済みのアプリケーションモジュール
 
-### バイナリ解析
-- HEX表示
-- BOMの検出
-- 改行コードの検出
-- バイト列の比較・操作
+- HEXとバイト列の変換・比較・結合・コピー
+- UTF-8、UTF-16、UTF-32 BOMの検出、追加、除去
+- 改行コードの検出、出現数集計、変換
+- Unicodeコードポイント、互換文字、異体字セレクタ、サロゲートの解析サービス
+- 文字コード・改行・正規化の設定例を用いた互換性解析サービス
+
+解析サービスやHookは実装済みですが、これらの解析機能は現在のメイン画面にはまだ接続されていません。コンポーネントの雛形があることも、画面機能が完成していることを意味しません。
+
+## 変換仕様
+
+MojiFixの基本機能は通常のトランスコードではなく、バイト列の再解釈です。
+
+```text
+入力文字列
+  -> 変換元文字コードでエンコード
+  -> 同じバイト列からHEXを生成
+  -> 同じバイト列を変換先文字コードでデコード
+```
+
+変換元文字コードで文字列に戻してから変換先で再エンコードする処理は行いません。文字コード処理はブラウザー内で完結し、入力を外部サーバーへ送信しません。
 
 ## 技術スタック
 
 | 分類 | 技術 |
 |---|---|
-| フレームワーク | Next.js |
-| 言語 | TypeScript |
-| UI | React |
-| 文字コード処理 | encoding-japanese（導入候補・未導入） |
-| 多言語文字コード処理 | iconv-lite（導入候補・未導入） |
-| スタイリング | CSS |
-| テスト | Vitest（採用候補・未導入） |
-| デプロイ | Vercel（Static Export設定済み） |
-| バージョン管理 | Git / GitHub |
+| フレームワーク | Next.js App Router |
+| 言語・UI | TypeScript、React |
+| 文字コード処理 | `encoding-japanese`、`iconv-lite` |
+| スタイリング | CSS、Tailwind CSS |
+| テスト | Vitest |
+| デプロイ | Next.js Static Export、Vercel向け |
 
-## 動作方針
+`encoding-japanese` と `iconv-lite` は共通のEncoding Engineインターフェースを実装しています。現在、登録済み文字コードのResolver設定では `encoding-japanese` が選択され、`iconv-lite` は登録されているものの、文字コード定義から通常選択される設定ではありません。実際の対応範囲・変換不能文字の挙動はエンジンごとに異なるため、エンジンの変更時はテストで確認してください。
 
-MojiFixはブラウザ内で文字コード処理を行います。
+## 開発
 
-入力された文字列や変換対象のバイト列を、外部サーバーに送信して変換することはありません。
-
-Next.jsのStatic Exportを利用し、静的サイトとして公開する方針です。
-
-## ディレクトリ構成
-
-```text
-MojiFix/
-├── .github/
-│   └── copilot-instructions.md
-├── public/
-│   ├── favicon.ico
-│   └── images/
-├── docs/
-│   ├── index.md
-│   ├── specification.md
-│   ├── design.md
-│   ├── interfaces.md
-│   └── development/
-│       ├── frontend.md
-│       ├── encoding-engine.md
-│       └── application-logic.md
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   └── globals.css
-│   ├── components/
-│   │   ├── analyzer/
-│   │   ├── converter/
-│   │   ├── editor/
-│   │   ├── layout/
-│   │   └── ui/
-│   ├── hooks/
-│   ├── services/
-│   ├── lib/
-│   │   ├── binary/
-│   │   ├── encoding/
-│   │   │   └── engines/
-│   │   ├── platform/
-│   │   ├── unicode/
-│   │   └── utils/
-│   ├── constants/
-│   └── types/
-├── tests/
-│   ├── converter/
-│   ├── encoding/
-│   ├── platform/
-│   └── unicode/
-├── README.md
-├── package.json
-└── next.config.ts
-```
-
-詳細は `docs/design.md` を参照してください。
-
-## 開発環境の準備
-
-### 必要なもの
-- Node.js 20.9.0以上
-- npm
-- Git
-- GitHubアカウント
-- Visual Studio Codeなどのエディタ
-
-### セットアップ
+必要環境：Node.js 20.9.0以上、npm
 
 ```bash
-git clone <repository-url>
-cd MojiFix
-npm install
+npm ci
 npm run dev
 ```
 
-ブラウザで `http://localhost:3000` にアクセスします。
-
-### ビルド
+ブラウザーで `http://localhost:3000` を開きます。ポートが使用中の場合、Next.jsは別のポートを選ぶことがあります。
 
 ```bash
+npm run typecheck
+npm run lint
+npx vitest run
 npm run build
 ```
 
-ビルド結果は `out/` に出力されます。
+本プロジェクトには独立した `test` npm script はありません。テスト対象は [vitest.config.ts](./vitest.config.ts) に定義されています。
 
-## 導入予定の文字コードライブラリ
+## 主なディレクトリ
 
-以下の2つのライブラリを利用する方針ですが、現時点では依存関係に含まれていません。
-
-### encoding-japanese
-日本語系文字コードを中心に扱います。
-
-### iconv-lite
-Windows系コードページ、Macintosh系、多言語文字コードなどの処理を担当します。
-
-両ライブラリを共通インターフェースでラップし、アプリケーション側からライブラリを直接操作しない設計にします。
-
-なお、ブラウザでの `iconv-lite` の動作にはバンドル・Buffer互換環境の検証が必要です。
-
-## 開発体制
-
-| 担当 | 役割 |
-|---|---|
-| A | Frontend / UI |
-| B | Encoding Engine / Unicode |
-| C | Application Logic / Integration |
-
-共通インターフェースは `docs/interfaces.md` に定義します。
-
-## 開発ルール
-
-1. TypeScriptを使用する。
-2. UIと変換ロジックを分離する。
-3. 文字コード処理は共通インターフェースを経由する。
-4. バイト列は `Uint8Array` に統一する。
-5. 文字コード変換とバイト列の再解釈を混同しない。
-6. Unicode正規化は文字コード変換と独立させる。
-7. 新機能には可能な限りテストを追加する。
-8. 仕様変更時は関連ドキュメントも更新する。
+```text
+src/
+├── app/          # Next.jsページとスタイル
+├── components/   # UIコンポーネント
+├── hooks/        # useConverter、useAnalyzer、useClipboard
+├── services/     # 変換、Unicode解析、互換性解析
+├── lib/
+│   ├── binary/   # HEX、BOM、改行、バイト操作
+│   ├── encoding/ # Encoding Engine、Registry、Resolver
+│   ├── platform/ # 互換性設定・比較
+│   └── unicode/  # Unicode解析・正規化
+├── constants/
+└── types/
+tests/             # converter、binary、encoding、platform、unicodeのテスト
+docs/
+└── copilot/       # 担当間の引き継ぎ資料
+```
 
 ## ドキュメント
 
-- `docs/index.md`：ドキュメント一覧
-- `docs/specification.md`：機能仕様
-- `docs/design.md`：システム設計
-- `docs/interfaces.md`：共通インターフェース
-- `docs/development/`：担当別開発指示
+- [仕様書](./docs/specification.md)
+- [設計書](./docs/design.md)
+- [共通インターフェース](./docs/interfaces.md)
+- [担当別開発ガイド](./docs/development/)
+- [B担当引き継ぎ](./docs/copilot/B-handoff.md)
+- [C担当引き継ぎ](./docs/copilot/C-handoff.md)
+
+## 開発上の注意
+
+- 共有APIと型は [docs/interfaces.md](./docs/interfaces.md) を参照し、関係者間の合意なく変更しないでください。
+- UIで文字コードエンジンを直接呼び出さず、HookとServiceを利用してください。
+- 文字コードの追加時はRegistry、別名、能力定義、エンジン、テストを一緒に確認してください。
+- OSプリセットは設定例であり、OSの既定動作を断定するものではありません。
 
 ## ライセンス
 
