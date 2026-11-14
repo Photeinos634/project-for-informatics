@@ -2,301 +2,132 @@
 
 ## 1. システム概要
 
-MojiFixはNext.js App Routerを使用したブラウザベースの文字コード解析アプリケーションである。
+MojiFixはNext.js App Routerを使用するブラウザー内動作の文字コード解析アプリケーションである。Static Exportで配布し、入力文字列を変換サーバーへ送信しない。
 
-文字コード処理、Unicode解析、バイナリ操作、環境互換性解析を独立したモジュールとして構成する。
+現在のトップページは文字コードの再解釈、HEX表示、変換結果とHEXのコピーを提供する。Unicode・互換性解析はService/Hookまで実装されているが、現在のトップページには接続されていない。
 
 ## 2. 技術構成
 
-| 分類 | 技術 |
+| 分類 | 現在の採用技術・設定 |
 |---|---|
-| Framework | Next.js |
-| Language | TypeScript |
-| UI | React |
-| Encoding Library | encoding-japanese（導入候補・未導入） |
-| Extended Encoding Library | iconv-lite（導入候補・未導入） |
-| Testing | Vitest（採用候補・未導入） |
-| Deployment | Vercel Static Export |
+| Framework | Next.js App Router (`output: "export"`) |
+| Language / UI | TypeScript / React |
+| Encoding | `encoding-japanese`、`iconv-lite` |
+| Testing | Vitest |
+| Styling | CSS、Tailwind CSS |
+| Deployment target | Vercelなどの静的ホスティング |
 
-## 3. ディレクトリ構成
+`encoding-japanese` と `iconv-lite` は共通の `EncodingEngine` を実装する。現行の文字コード定義は `encoding-japanese` に割り当てられており、`iconv-lite` は初期化時に登録されるが、現在の定義ではResolverから選択されない。
+
+## 3. 実装構成
 
 ```text
-MojiFix/
-│
-├── .github/
-│   └── copilot-instructions.md
-│
-├── public/
-│   ├── favicon.ico
-│   └── images/
-│
-├── docs/
-│   ├── index.md
-│   ├── specification.md
-│   ├── design.md
-│   ├── interfaces.md
-│   └── development/
-│       ├── frontend.md
-│       ├── encoding-engine.md
-│       └── application-logic.md
-│
-├── src/
-│   ├── app/
-│   │   ├── layout.tsx
-│   │   ├── page.tsx
-│   │   └── globals.css
-│   │
-│   ├── components/
-│   │   ├── layout/
-│   │   │   ├── Header.tsx
-│   │   │   └── Footer.tsx
-│   │   │
-│   │   ├── editor/
-│   │   │   ├── EditorPanel.tsx
-│   │   │   ├── TextInput.tsx
-│   │   │   └── TextOutput.tsx
-│   │   │
-│   │   ├── converter/
-│   │   │   ├── EncodingSelector.tsx
-│   │   │   ├── ConvertButton.tsx
-│   │   │   ├── HexViewer.tsx
-│   │   │   └── ConversionResult.tsx
-│   │   │
-│   │   ├── analyzer/
-│   │   │   ├── CharacterInspector.tsx
-│   │   │   ├── UnicodeInspector.tsx
-│   │   │   ├── CompatibilityReport.tsx
-│   │   │   └── ByteInspector.tsx
-│   │   │
-│   │   └── ui/
-│   │       ├── Button.tsx
-│   │       ├── Card.tsx
-│   │       ├── Select.tsx
-│   │       └── Tabs.tsx
-│   │
-│   ├── hooks/
-│   │   ├── useConverter.ts
-│   │   ├── useAnalyzer.ts
-│   │   └── useClipboard.ts
-│   │
-│   ├── services/
-│   │   ├── converterService.ts
-│   │   ├── analyzerService.ts
-│   │   └── compatibilityService.ts
-│   │
-│   ├── lib/
-│   │   ├── encoding/
-│   │   │   ├── engines/
-│   │   │   │   ├── encodingJapaneseEngine.ts
-│   │   │   │   └── iconvLiteEngine.ts
-│   │   │   ├── encodingEngine.ts
-│   │   │   ├── encodingRegistry.ts
-│   │   │   ├── encodingResolver.ts
-│   │   │   ├── encodingAliases.ts
-│   │   │   └── encodingMetadata.ts
-│   │   │
-│   │   ├── unicode/
-│   │   │   ├── normalization.ts
-│   │   │   ├── codePoint.ts
-│   │   │   ├── compatibility.ts
-│   │   │   ├── variationSelector.ts
-│   │   │   └── surrogate.ts
-│   │   │
-│   │   ├── platform/
-│   │   │   ├── presets.ts
-│   │   │   ├── compatibilityCheck.ts
-│   │   │   ├── characterMapping.ts
-│   │   │   └── platformMetadata.ts
-│   │   │
-│   │   ├── binary/
-│   │   │   ├── hex.ts
-│   │   │   ├── bom.ts
-│   │   │   ├── newline.ts
-│   │   │   └── byteUtils.ts
-│   │   │
-│   │   └── utils/
-│   │       ├── validation.ts
-│   │       └── errorHandler.ts
-│   │
-│   ├── constants/
-│   │   ├── encodings.ts
-│   │   ├── platforms.ts
-│   │   └── normalization.ts
-│   │
-│   └── types/
-│       ├── encoding.ts
-│       ├── converter.ts
-│       ├── analyzer.ts
-│       └── platform.ts
-│
-├── tests/
-│   ├── encoding/
-│   │   ├── encodingJapanese.test.ts
-│   │   ├── iconvLite.test.ts
-│   │   ├── encodingCompatibility.test.ts
-│   │   └── malformedBytes.test.ts
-│   ├── unicode/
-│   │   ├── normalization.test.ts
-│   │   └── codePoint.test.ts
-│   ├── platform/
-│   │   └── compatibility.test.ts
-│   └── converter/
-│       └── converterService.test.ts
-│
-├── .gitignore
-├── eslint.config.mjs
-├── next.config.ts
-├── package.json
-├── package-lock.json
-├── tsconfig.json
-├── README.md
-└── LICENSE
+src/
+├── app/
+│   ├── page.tsx                 # useConverter / useClipboardを接続
+│   └── globals.css
+├── components/
+│   ├── analyzer/                # 解析UIの雛形を含む
+│   ├── converter/               # 文字コード選択・結果・HEX UI
+│   ├── editor/                  # 入力・出力UI
+│   ├── layout/
+│   └── ui/
+├── hooks/
+│   ├── useConverter.ts
+│   ├── useAnalyzer.ts
+│   └── useClipboard.ts
+├── services/
+│   ├── converterService.ts
+│   ├── analyzerService.ts
+│   └── compatibilityService.ts
+├── lib/
+│   ├── encoding/                # Engines、Registry、Resolver、aliases、metadata
+│   ├── unicode/                 # 正規化、コードポイント、互換性、異体字、サロゲート
+│   ├── binary/                  # HEX、BOM、改行、バイト列操作
+│   ├── platform/                # プリセット、互換性比較、文字対応
+│   └── utils/                   # 入力検証、共通エラー生成
+├── constants/
+└── types/
+
+tests/
+├── binary/
+├── converter/
+├── encoding/
+├── platform/
+└── unicode/
 ```
 
-この構成は現在のファイル配置を示す。空の雛形が存在するモジュールもあり、ディレクトリやファイルの存在は機能の実装済みを意味しない。
+ディレクトリやUIコンポーネントの雛形があることは、機能が画面から利用可能であることを意味しない。現時点で動作する画面機能と内部モジュールの区別は [README.md](../README.md) と [C担当引き継ぎ](./copilot/C-handoff.md) を参照する。
 
 ## 4. モジュール設計
 
-### 4.1 encoding
+### 4.1 Encoding Engine
 
-文字コードのエンコード・デコードを担当する。
+- `EncodingEngine` が文字コードのエンコード・デコードAPIを提供する。
+- `encodingRegistry` が文字コードID、表示名、aliases、engine ID、処理能力を管理する。
+- `encodingResolver` が文字コードと処理種別からエンジンを解決する。
+- `encodingInitializer` がエンジンと定義を初期登録する。
+- バイト列は `Uint8Array` に統一する。
 
-複数ライブラリを共通インターフェースで抽象化する。
+登録文字コードはUTF-8、Windows-31J（CP932）、EUC-JP、ISO-2022-JP、UTF-16LE、UTF-16BE。現状の別名定義では `Shift_JIS` はWindows-31Jへ解決する。厳密なShift_JISとのマッピング差に注意する。
 
-```text
-encoding/
-├── engines/
-│   ├── encodingJapaneseEngine.ts
-│   └── iconvLiteEngine.ts
-├── encodingEngine.ts
-├── encodingRegistry.ts
-├── encodingResolver.ts
-├── encodingAliases.ts
-└── encodingMetadata.ts
-```
+### 4.2 Application Services / Hooks
 
-#### encodingJapaneseEngine
-`encoding-japanese` のアダプター。
+`converterService.convert()` は要求を検証し、変換元エンジンで入力をエンコード、生成バイト列からHEXを作成し、同じバイト列を変換先エンジンでデコードする。検証・各処理の失敗は `ConvertResponse` 内のエラーとして返し、失敗時に部分結果を成功として返さない。
 
-#### iconvLiteEngine
-`iconv-lite` のアダプター。
+`useConverter()` は入力・文字コード・変換結果・処理状態を管理する。エンコード定義からUIの選択肢を構成し、入力や選択が変更された際に古い結果をクリアする。
 
-#### encodingEngine
-共通インターフェースを定義する。
+`useClipboard()` はブラウザーのClipboard APIを利用し、未対応・拒否などの失敗状態を呼び出し側に返す。`useAnalyzer()` は `analyzerService` の結果を状態管理する。
 
-#### encodingRegistry
-利用可能な文字コード・エンジンを登録する。
+### 4.3 Binary / Unicode / Platform
 
-#### encodingResolver
-文字コードIDから利用するエンジンを解決する。
+- `lib/binary/hex.ts`：バイト列とHEX文字列の変換。不正なHEXを拒否する。
+- `lib/binary/bom.ts`：UTF-8/16/32 BOMの検出・追加・除去。入力配列は変更しない。BOMを認識することは、その文字コードがEncoding Registryに登録されていることを意味しない。
+- `lib/binary/newline.ts`：CRLF/LF/CRの先頭出現検出、件数集計、改行変換。
+- `analyzerService`：コードポイント、互換文字、異体字セレクタ、サロゲート、改行を集約する。
+- `compatibilityService`：プリセットを使ったエンコード/デコード比較と文字単位の差分情報を返す。
+- Platform presetは代表的な設定例であり、実際のOS既定値を断定しない。
 
-#### encodingAliases
-文字コードの別名を正規IDへ変換する。
+### 4.4 UI
 
-#### encodingMetadata
-表示名、説明、対応能力などを管理する。
+`app/page.tsx` は `useConverter()` と `useClipboard()` を利用し、入力、選択、変換、結果、HEX表示、コピーを接続する。文字コード一覧はUIにハードコードせずRegistryのmetadataから取得する。
 
-エンジンの選択は明示的な登録に基づいて行う。複数エンジンに対応する文字コードについて、暗黙の優先順位に依存しない。
-
-### 4.2 unicode
-
-Unicodeの解析・正規化を担当する。
-
-文字コードエンジンとは独立させる。
-
-### 4.3 platform
-
-OSやアプリケーション間の文字互換性を調べる。
-
-OSごとのプリセットは代表的な設定例として扱い、実際の環境を断定しない。
-
-### 4.4 binary
-
-HEX・BOM・改行コード・バイト列操作を担当する。
-
-文字列への変換前のバイト列を保持できる設計にする。
-
-### 4.5 utils
-
-入力検証・共通エラー処理などを担当する。
+解析用Service/Hookは存在するが、Unicode・互換性解析画面は現時点で実装済みの画面機能に含まれない。
 
 ## 5. データフロー
 
-### 5.1 基本変換
-
 ```text
-TextInput
+TextInput / EncodingSelector
    ↓
 useConverter
    ↓
-converterService
+converterService.convert
+   ├─ validateConvertRequest
+   ├─ encodingResolver -> sourceEngine.encode -> Uint8Array
+   ├─ bytesToHex(the same Uint8Array)
+   └─ encodingResolver -> targetEngine.decode(the same Uint8Array)
    ↓
-encodingResolver
+ConvertResponse
    ↓
-EncodingEngine.encode
-   ↓
-Uint8Array
-   ├── bytesToHex
-   └── EncodingEngine.decode
-             ↓
-         ConvertResponse
-             ↓
-       ConversionResult
+ConversionResult / HexViewer
 ```
 
-### 5.2 重要な設計原則
+基本処理では、元エンコードのバイト列を変換先デコードに直接渡す。変換元文字コードでの中間デコードや、変換先への再エンコードを挟まない。
 
-エンコード後のバイト列をデコード処理にそのまま渡す。
+## 6. 実行・テスト
 
-次のような不要な変換を挟まない。
+- `npm run dev`：開発サーバー
+- `npm run typecheck`：TypeScript型チェック
+- `npm run lint`：ESLint
+- `npx vitest run`：Vitestテスト。対象ファイルは `vitest.config.ts` で指定
+- `npm run build`：Next.js Static Exportのビルド
 
-```text
-bytes
- ↓
-source encodingでdecode
- ↓
-Unicode string
- ↓
-target encodingでencode
-```
+変換エンジンごとに変換不能文字・不正バイト列の挙動が異なり得る。表示上の成功だけでなく、実バイト列と各Engineのテストを基準に対応可否を確認する。
 
-これは通常のトランスコードであり、基本の再解釈処理とは異なる。
+## 7. 制約・次の作業候補
 
-## 6. 実行環境
-
-- Next.js App Router
-- Static Export
-- ブラウザ内処理
-- API Routesを使用しない
-- Route Handlersを使用しない
-- Server Actionsを使用しない
-- データベースを使用しない
-
-ブラウザ依存のライブラリは、クライアント側でのみ実行する。
-
-`iconv-lite` のBuffer互換性とバンドル方法は、実装開始時に検証する。
-
-## 7. エンジン追加方針
-
-新しい文字コードを追加する場合：
-
-1. エンジンが対応しているか確認する。
-2. エンコード・デコードのテストを作成する。
-3. `encodingMetadata` に情報を追加する。
-4. `encodingRegistry` に登録する。
-5. 必要に応じてエイリアスを登録する。
-6. UI側で選択肢に表示されることを確認する。
-
-UIに文字コードを直接ハードコードしない。
-
-## 8. エラー処理
-
-ライブラリ固有の例外は、アプリケーション共通のエラー形式に変換する。
-
-エンコード不能文字や不正なバイト列を黙って処理しない。
-
-## 9. 拡張方針
-
-初期段階では文字コード変換・再解釈・HEX表示を優先する。
-
-その後、Unicode解析、BOM・改行解析、OS間互換性解析を段階的に追加する。
+- Unicode解析Hook/Serviceと既存の解析UIを接続し、利用可能な解析画面を作る。
+- Compatibility Serviceの設定や比較結果を画面へ表示する。
+- Engineのフォールバック・置換挙動と「エンコード不能文字をエラーにする」仕様をエンジン単位で検証する。
+- `Shift_JIS` とWindows-31Jを同一視しない方針について、共有仕様とRegistry aliasの合意を取る。
+- BOM検出はUTF-32も扱うが、UTF-32のエンコード/デコードは現在のEncoding Registryの範囲外。

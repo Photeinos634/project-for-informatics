@@ -1,26 +1,34 @@
 "use client";
 
-import { useState } from "react";
 import { ConvertButton } from "@/components/converter/ConvertButton";
 import { ConversionResult } from "@/components/converter/ConversionResult";
 import { EditorPanel } from "@/components/editor/EditorPanel";
+import { useClipboard } from "@/hooks/useClipboard";
+import { useConverter } from "@/hooks/useConverter";
 
 export default function Home() {
-    const [input, setInput] = useState("");
-    const [sourceEncoding, setSourceEncoding] = useState("");
-    const [targetEncoding, setTargetEncoding] = useState("");
-
-    const reset = () => {
-        setInput("");
-        setSourceEncoding("");
-        setTargetEncoding("");
-    };
+    const {
+        input,
+        setInput,
+        sourceEncoding,
+        setSourceEncoding,
+        targetEncoding,
+        setTargetEncoding,
+        result,
+        isConverting,
+        encodings,
+        convert,
+        reset,
+    } = useConverter();
+    const clipboard = useClipboard();
+    const output = result?.success ? result.output : null;
+    const hex = result?.success ? result.hex : null;
 
     return (
         <div className="page-container">
             <section className="page-intro" aria-labelledby="page-title">
                 <p className="eyebrow">文字コード再解釈ツール</p>
-                <h1 id="page-title">文字化けを、仕組みから確かめる。</h1>
+                <h1 id="page-title">文字化け直し</h1>
                 <p>
                     入力した文字列を文字コードのバイト列として捉え直し、
                     表示の変化を確認できます。
@@ -29,7 +37,7 @@ export default function Home() {
 
             <div className="integration-notice" role="status">
                 <span className="status-dot" aria-hidden="true" />
-                変換機能はC担当のHook接続後に有効になります。入力内容はこの画面内でのみ扱われます。
+                入力内容はこの画面内で処理され、外部へ送信されません。
             </div>
 
             <EditorPanel
@@ -39,21 +47,45 @@ export default function Home() {
                 onSourceEncodingChange={setSourceEncoding}
                 targetEncoding={targetEncoding}
                 onTargetEncodingChange={setTargetEncoding}
-                encodings={[]}
+                encodings={encodings}
                 onReset={reset}
                 convertButton={
-                    <ConvertButton disabled>
-                        変換機能の接続待ち
+                    <ConvertButton
+                        onClick={convert}
+                        disabled={!sourceEncoding || !targetEncoding}
+                        loading={isConverting}
+                    >
+                        変換する
                     </ConvertButton>
                 }
             />
 
             <ConversionResult
-                output={null}
-                hex={null}
-                errors={[]}
-                warnings={[]}
+                output={output}
+                hex={hex}
+                errors={result?.errors ?? []}
+                warnings={result?.warnings ?? []}
+                onCopyOutput={
+                    output !== null
+                        ? () => void clipboard.copy(output)
+                        : undefined
+                }
+                onCopyHex={
+                    hex !== null
+                        ? () => void clipboard.copy(hex)
+                        : undefined
+                }
             />
+            {clipboard.error && (
+                <p className="message message--error" role="alert">
+                    {clipboard.error}
+                </p>
+            )}
+            {clipboard.isCopied && (
+                <p className="message message--success" role="status">
+                    クリップボードにコピーしました。
+                </p>
+            )}
         </div>
     );
 }
