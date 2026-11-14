@@ -1,4 +1,4 @@
-import * as Encoding from "encoding-japanese";
+﻿import * as Encoding from "encoding-japanese";
 import type { EncodingId } from "@/types/encoding";
 import type { EncodingEngine } from "../encodingEngine";
 
