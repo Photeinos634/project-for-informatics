@@ -13,15 +13,7 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="ja">
-            <body>
-                <header>
-                    <nav>共通ナビゲーション</nav>
-                </header>
-
-                <main>{children}</main>
-
-                <footer>共通フッター</footer>
-            </body>
+            <body>{children}</body>
         </html>
     );
 }
