@@ -11,20 +11,20 @@ C担当として、文字コードEngineとUIをつなぐApplication Logicを実
 ### Converter
 
 - `src/services/converterService.ts`
-  - `initializeEncoding()` 後、要求を検証する。
-  - Encoding Resolverから変換元のencode Engineを取得し、入力を `Uint8Array` に変換する。
-  - 同じバイト列をHEXにし、変換先のdecode Engineへ直接渡す。
-  - 失敗時は `ConvertResponse` の `errors` にエラーを返し、output/bytes/hexを成功扱いで返さない。
+    - `initializeEncoding()` 後、要求を検証する。
+    - Encoding Resolverから変換元のencode Engineを取得し、入力を `Uint8Array` に変換する。
+    - 同じバイト列をHEXにし、変換先のdecode Engineへ直接渡す。
+    - 失敗時は `ConvertResponse` の `errors` にエラーを返し、output/bytes/hexを成功扱いで返さない。
 - `src/lib/utils/validation.ts`
-  - 必須ID、Registryの存在、encode/decode capabilityを確認する。
+    - 必須ID、Registryの存在、encode/decode capabilityを確認する。
 - `src/lib/utils/errorHandler.ts`
-  - 例外を共通 `ConversionError` に変換する。
+    - 例外を共通 `ConversionError` に変換する。
 - `src/hooks/useConverter.ts`
-  - 入力、変換元・変換先、結果、変換中状態を管理する。
-  - Registry metadataからUI選択肢を返す。
-  - 入力やEncoding変更時に古い結果をクリアする。
+    - 入力、変換元・変換先、結果、変換中状態を管理する。
+    - Registry metadataからUI選択肢を返す。
+    - 入力やEncoding変更時に古い結果をクリアする。
 - `src/app/page.tsx`
-  - Converter HookとClipboard Hookを画面へ接続する。
+    - Converter HookとClipboard Hookを画面へ接続する。
 
 `convert()` は同期APIであるため、現在の `isConverting` は同期呼び出し中の状態を示す。非同期Engineへ移行するときは共通interface、Service、Hook、画面を関連担当者と合意して更新する。
 
@@ -86,17 +86,17 @@ C担当で追加・更新したテスト：
 
 ## 5. 注意点・次の作業
 
-1. **Engineの厳密なエンコードエラー**  
+1. **Engineの厳密なエンコードエラー**
    ConverterはEngineの例外をエラーとして返すが、各Engineが変換不能文字を本当に例外にするかは別途検証が必要。特に `encoding-japanese` の `fallback: "error"` が全ケースで仕様を満たすか、代表的な非対応文字・孤立サロゲートでテストする。暗黙の置換があればB担当とEngine側の修正を相談する。
-2. **Shift_JISとWindows-31J**  
+2. **Shift_JISとWindows-31J**
    現Registryでは `Shift_JIS` aliasをWindows-31Jに解決する。厳密なShift_JISとしての対応が必要なら、`docs/interfaces.md`、仕様書、UI名称、Registry、Engine、テストを関係担当と合意の上で更新する。
-3. **解析機能のUI統合**  
+3. **解析機能のUI統合**
    `useAnalyzer()` とCompatibility Serviceを既存の解析画面へ接続する。画面の空雛形は完成機能として扱わない。
-4. **改行混在の表示**  
+4. **改行混在の表示**
    `detectNewline()` は先頭の種類だけを返す。混在を正確に示す場合は `countNewlines()` の結果をUI・共通型で表示する。
-5. **Compatibility比較**  
+5. **Compatibility比較**
    各プリセットの正規化・改行設定はサンプルである。実際のOS標準動作として説明しない。プリセットの結果は入力文字列を正規化/改行変換した後のエンコード往復結果と元入力を比較する。
-6. **BOMとEncoding Registry**  
+6. **BOMとEncoding Registry**
    BOM helperはUTF-32も認識するが、UTF-32は現在のEncoding Registryの対応範囲外。UIの選択肢に表示する場合は別途Engine対応を実装・検証する。
 
 ## 6. 実行コマンド
