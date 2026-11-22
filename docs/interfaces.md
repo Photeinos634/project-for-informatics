@@ -159,6 +159,104 @@ export interface ConvertResponse {
 }
 ```
 
+### 4.6 入力モード拡張案
+
+テキスト入力とHEX入力を共通インターフェースで扱う場合は、既存の変換処理を壊さない形で以下の判別可能Unionを使用する。
+
+```ts
+export interface TextConvertRequest {
+  inputMode: "text";
+  input: string;
+  sourceEncoding: EncodingId;
+  targetEncoding: EncodingId;
+}
+
+export interface HexConvertRequest {
+  inputMode: "hex";
+  hexInput: string;
+  targetEncoding: EncodingId;
+}
+
+export type ConvertRequest =
+  | TextConvertRequest
+  | HexConvertRequest;
+```
+
+実装時はこの形式への移行をA・B・Cの合意で行う。移行までは既存の `ConvertRequest` を維持してもよいが、HEX専用APIを独立させる場合は本節と関係テストを更新する。
+
+### 4.7 文字コード自動判定
+
+```ts
+export interface EncodingDetectionCandidate {
+  encoding: EncodingId;
+  confidence: number;
+  reason: string[];
+}
+
+export interface EncodingDetectionResult {
+  candidates: EncodingDetectionCandidate[];
+  detectedBOM: BOMInfo | null;
+  isReliable: boolean;
+  warnings: ConversionWarning[];
+}
+
+detectEncoding(
+  bytes: Uint8Array
+): EncodingDetectionResult;
+
+detectEncodingFromHex(
+  hex: string
+): EncodingDetectionResult;
+```
+
+自動判定は推定である。候補を自動選択しても元のユーザー選択を黙って上書きしない。
+
+### 4.8 複数修復候補
+
+```ts
+export interface RepairCandidate {
+  sourceEncoding: EncodingId;
+  targetEncoding: EncodingId;
+  output: string;
+  hex: string;
+  confidence: number;
+  explanation: string[];
+}
+
+export interface RepairResponse {
+  candidates: RepairCandidate[];
+  detectedBOM: BOMInfo | null;
+  warnings: ConversionWarning[];
+  errors: ConversionError[];
+}
+
+suggestRepairCandidates(
+  bytes: Uint8Array,
+  targetEncodings?: EncodingId[]
+): RepairResponse;
+```
+
+候補は実際のデコード結果に基づく。修復候補のスコアは候補間の相対的な推定であり、文字化け解消を保証しない。
+
+### 4.9 BOM判定結果
+
+既存の `detectBOM` を維持し、画面・候補提示へ渡すBOM情報は以下を使用する。
+
+```ts
+export interface BOMAnalysis {
+  hasBOM: boolean;
+  bom: BOMInfo | null;
+  contentOffset: number;
+  contentBytes: Uint8Array;
+}
+
+analyzeBOM(
+  bytes: Uint8Array
+): BOMAnalysis;
+```
+
+`contentBytes` と元のバイト列は別配列として扱い、元配列を破壊しない。
+
 ### 4.5 converterService
 
 ```ts

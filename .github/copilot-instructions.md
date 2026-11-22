@@ -111,14 +111,18 @@ HEXはバイト列の表示形式であり、文字コードそのものでは�
 
 ## 3. Supported Encodings
 
-初期対応する文字コードは以下の4種類とする。
+文字コードはEncoding Registryで管理する。現行の登録対象と別名は実装・テストで確認し、硬直した固定リストをUIへ直接ハードコードしない。
+
+現行の登録文字コードは次のとおり。
 
 | Encoding ID | 表示名 |
 |---|---|
 | UTF-8 | UTF-8 |
-| SHIFT_JIS | Shift_JIS |
+| WINDOWS-31J | Windows-31J（CP932） |
 | EUC-JP | EUC-JP |
 | ISO-2022-JP | ISO-2022-JP（JIS） |
+| UTF-16LE | UTF-16LE |
+| UTF-16BE | UTF-16BE |
 
 ### 注意事項
 
@@ -163,6 +167,11 @@ UI側で文字コードのエンコード・デコード処理を実装しない
 - 対応文字コードの管理
 - 文字コード処理のテスト
 
+- バイト列に対する文字コード自動判定候補の生成
+- 複数修復候補に必要なデコード候補の生成
+- UTF BOMの検出基盤と長いBOM優先の判定
+- HEXバイト列のエンジンへの渡し方を共有できる処理設計
+
 UIやReactの状態管理を実装しない。
 
 ### C：Application Logic / Integration
@@ -175,6 +184,10 @@ UIやReactの状態管理を実装しない。
 - useConverter Hook
 - useClipboard Hook
 - A・Bの実装の統合
+
+- 自動判定・修復候補・BOM情報の取得と状態管理
+- HEXモードとテキストモードの入力検証・モード切替
+- 候補選択を変換要求へ反映する統合処理
 
 文字コードの内部処理はBのEncoding Engineを利用する。
 
@@ -195,9 +208,10 @@ MojiFix/
 │   ├── design.md
 │   ├── interfaces.md
 │   └── development/
-│       ├── frontend.md
-│       ├── encoding-engine.md
-│       └── application-logic.md
+│       ├── mvp/
+│       ├── A-<function>.md
+│       ├── B-<function>.md
+│       └── C-<function>.md
 │
 ├── public/
 │   ├── favicon.ico
@@ -375,6 +389,14 @@ export default nextConfig;
 - コピー
 - リセット
 - エラー表示
+
+### 追加機能
+
+- 文字コード自動判定候補と低信頼表示
+- 複数修復候補と重複排除
+- BOM検出、本文オフセット、保持・除去・追加
+- HEX入力の不正文字・奇数桁検証
+- HEXバイト列と変換先デコードの一致
 
 テストを実行していない場合は、実行済みであるかのように報告しないこと。
 

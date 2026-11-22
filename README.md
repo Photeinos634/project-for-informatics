@@ -31,6 +31,30 @@ MojiFixは、文字列を指定した文字コードでバイト列に変換し�
 
 解析サービスやHookは実装済みですが、これらの解析機能は現在のメイン画面にはまだ接続されていません。コンポーネントの雛形があることも、画面機能が完成していることを意味しません。
 
+### 追加機能の仕様策定対象
+
+現在、次の機能は実装ではなく仕様策定段階です。
+
+- 文字コード自動判定
+- 複数修復候補
+- BOM判定
+- HEX入力・HEX編集
+
+設計上のAPI案とA/B/C担当への機能分解は、以下の担当別仕様を参照してください。
+
+- [A担当: 自動判定UI](./docs/development/A-auto-encoding-detection.md)
+- [B担当: 自動判定エンジン](./docs/development/B-auto-encoding-detection.md)
+- [C担当: 自動判定統合](./docs/development/C-auto-encoding-detection.md)
+- [A担当: 修復候補UI](./docs/development/A-multiple-repair-candidates.md)
+- [B担当: 修復候補エンジン](./docs/development/B-multiple-repair-candidates.md)
+- [C担当: 修復候補統合](./docs/development/C-multiple-repair-candidates.md)
+- [A担当: BOM判定UI](./docs/development/A-bom-detection.md)
+- [B担当: BOM判定エンジン](./docs/development/B-bom-detection.md)
+- [C担当: BOM判定統合](./docs/development/C-bom-detection.md)
+- [A担当: HEX入力・編集UI](./docs/development/A-hex-input-edit.md)
+- [B担当: HEXバイト処理](./docs/development/B-hex-input-edit.md)
+- [C担当: HEX入力統合](./docs/development/C-hex-input-edit.md)
+
 ## 変換仕様
 
 MojiFixの基本機能は通常のトランスコードではなく、バイト列の再解釈です。

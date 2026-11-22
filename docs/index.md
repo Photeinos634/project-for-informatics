@@ -3,6 +3,25 @@
 - [Project specification](./specification.md)
 - [System design](./design.md)
 - [Shared interfaces](./interfaces.md)
-- [Frontend development guide](./development/frontend.md)
-- [Encoding engine development guide](./development/encoding-engine.md)
-- [Application logic development guide](./development/application-logic.md)
+- [Frontend development guide](./development/mvp/A-frontend.md)
+- [Encoding engine development guide](./development/mvp/B-encoding-engine.md)
+- [Application logic development guide](./development/mvp/C-application-logic.md)
+- MVP担当ガイド
+  - [A担当](./development/mvp/A-frontend.md)
+  - [B担当](./development/mvp/B-encoding-engine.md)
+  - [C担当](./development/mvp/C-application-logic.md)
+- 追加機能: A担当
+  - [文字コード自動判定](./development/A-auto-encoding-detection.md)
+  - [複数修復候補](./development/A-multiple-repair-candidates.md)
+  - [BOM判定](./development/A-bom-detection.md)
+  - [HEX入力・編集](./development/A-hex-input-edit.md)
+- 追加機能: B担当
+  - [文字コード自動判定](./development/B-auto-encoding-detection.md)
+  - [複数修復候補](./development/B-multiple-repair-candidates.md)
+  - [BOM判定](./development/B-bom-detection.md)
+  - [HEXバイト列処理](./development/B-hex-input-edit.md)
+- 追加機能: C担当
+  - [文字コード自動判定](./development/C-auto-encoding-detection.md)
+  - [複数修復候補](./development/C-multiple-repair-candidates.md)
+  - [BOM判定](./development/C-bom-detection.md)
+  - [HEX入力統合](./development/C-hex-input-edit.md)
