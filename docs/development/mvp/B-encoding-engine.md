@@ -234,3 +234,12 @@ C担当に以下を提供する。
 - Unicode解析API
 
 共通インターフェースを変更する場合は、C担当と合意してから変更する。
+
+## 11. 追加機能仕様
+
+- [文字コード自動判定エンジン](../B-auto-encoding-detection.md)
+- [複数修復候補エンジン](../B-multiple-repair-candidates.md)
+- [BOM判定エンジン](../B-bom-detection.md)
+- [HEXバイト列処理](../B-hex-input-edit.md)
+
+判定・修復候補は推定であり、結果の正しさを確定表示しない。ライブラリ固有の例外と型をC担当へ漏らさず、共通インターフェースへ変換する。

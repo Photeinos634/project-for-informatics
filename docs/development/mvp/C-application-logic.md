@@ -257,3 +257,10 @@ B担当の文字コード処理を独自に再実装しない。
 A担当のUIに変換処理を直接実装させない。
 
 共通インターフェースの変更は、必ず関係者間で共有する。
+
+## 12. 追加機能仕様
+
+- [文字コード自動判定統合](../C-auto-encoding-detection.md)
+- [複数修復候補統合](../C-multiple-repair-candidates.md)
+- [BOM判定統合](../C-bom-detection.md)
+- [HEX入力統合](../C-hex-input-edit.md)

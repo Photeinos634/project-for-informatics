@@ -141,5 +141,13 @@ HEX表示は文字列として再処理せず、受け取ったバイト列の�
 - スマートフォンでも操作できるか。
 
 ## 8. 担当外の変更
-
 文字コード処理、Unicode解析、共通インターフェースを変更する場合は、B・C担当と相談する。
+
+## 9. 追加機能仕様
+
+- [文字コード自動判定UI](../A-auto-encoding-detection.md)
+- [複数修復候補UI](../A-multiple-repair-candidates.md)
+- [BOM判定UI](../A-bom-detection.md)
+- [HEX入力・HEX編集UI](../A-hex-input-edit.md)
+
+A担当は判定・修復・BOM処理を直接実装せず、C担当のHookまたはServiceレスポンスを表示する。
