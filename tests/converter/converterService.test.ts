@@ -1,8 +1,8 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it, vi } from "vitest";
 import { bytesToHex } from "@/lib/binary/hex";
 import { initializeEncoding } from "@/lib/encoding/encodingInitializer";
 import { resolveEncodingEngine } from "@/lib/encoding/encodingResolver";
-import { convert } from "@/services/converterService";
+import { convert, convertFromHex } from "@/services/converterService";
 
 describe("converterService", () => {
     it("reinterprets the exact source bytes using the target encoding", () => {
@@ -77,5 +77,55 @@ describe("converterService", () => {
             "SOURCE_ENCODING_REQUIRED",
             "TARGET_ENCODING_REQUIRED",
         ]);
+    });
+
+    it("decodes HEX bytes directly without re-encoding text", () => {
+        initializeEncoding();
+
+        const bytes = resolveEncodingEngine("UTF-8", "encode")
+            .encode("こんにちは", "UTF-8");
+
+        const hex = bytesToHex(bytes);
+        const response = convertFromHex(hex, "UTF-8");
+
+        expect(response.success).toBe(true);
+        expect(response.sourceBytes).toEqual(bytes);
+        expect(response.hex).toBe(hex);
+        expect(response.output).toBe("こんにちは");
+        expect(response.errors).toEqual([]);
+    });
+
+    it("accepts whitespace and newlines in HEX input", () => {
+        const response = convertFromHex("41 42\n43\t44", "UTF-8");
+
+        expect(response.success).toBe(true);
+        expect(response.sourceBytes).toEqual(
+            new Uint8Array([0x41, 0x42, 0x43, 0x44]),
+        );
+        expect(response.output).toBe("ABCD");
+    });
+
+    it("rejects invalid HEX characters before calling the engine", () => {
+        initializeEncoding();
+
+        const engine = resolveEncodingEngine("UTF-8", "decode");
+        const decodeSpy = vi.spyOn(engine, "decode");
+
+        const response = convertFromHex("GG", "UTF-8");
+
+        expect(response.success).toBe(false);
+        expect(response.errors[0]?.code).toBe("INVALID_HEX_INPUT");
+        expect(response.sourceBytes).toBeNull();
+        expect(decodeSpy).not.toHaveBeenCalled();
+
+        decodeSpy.mockRestore();
+    });
+
+    it("rejects HEX input with an odd number of digits", () => {
+        const response = convertFromHex("ABC", "UTF-8");
+
+        expect(response.success).toBe(false);
+        expect(response.errors[0]?.code).toBe("INVALID_HEX_INPUT");
+        expect(response.output).toBeNull();
     });
 });

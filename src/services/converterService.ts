@@ -1,8 +1,9 @@
-import { bytesToHex } from "@/lib/binary/hex";
+﻿import { bytesToHex, hexToBytes } from "@/lib/binary/hex";
 import { initializeEncoding } from "@/lib/encoding/encodingInitializer";
 import { resolveEncodingEngine } from "@/lib/encoding/encodingResolver";
 import { createConversionError } from "@/lib/utils/errorHandler";
 import { validateConvertRequest } from "@/lib/utils/validation";
+import type { EncodingId } from "@/types/encoding";
 import type {
     ConvertRequest,
     ConvertResponse,
@@ -83,6 +84,66 @@ export function convert(request: ConvertRequest): ConvertResponse {
                 "DECODE_FAILED",
                 error,
                 "生成したバイト列を変換先の文字コードでデコードできませんでした。",
+            ),
+        ]);
+    }
+}
+
+/**
+ * HEX入力を直接バイト列に変換してデコードする。
+ * テキストへの再エンコードは行わない。
+ */
+export function convertFromHex(
+    hex: string,
+    targetEncoding: EncodingId,
+): ConvertResponse {
+    initializeEncoding();
+
+    let sourceBytes: Uint8Array;
+
+    // HEXの検証・変換に失敗した場合、エンジンには渡さない。
+    try {
+        sourceBytes = hexToBytes(hex);
+    } catch (error) {
+        return failedResponse([
+            createConversionError(
+                "INVALID_HEX_INPUT",
+                error,
+                "HEX入力が正しくありません。",
+            ),
+        ]);
+    }
+
+    let targetEngine;
+    try {
+        targetEngine = resolveEncodingEngine(targetEncoding, "decode");
+    } catch (error) {
+        return failedResponse([
+            createConversionError(
+                "TARGET_ENGINE_UNAVAILABLE",
+                error,
+                "変換先の文字コードエンジンを利用できません。",
+            ),
+        ]);
+    }
+
+    try {
+        const output = targetEngine.decode(sourceBytes, targetEncoding);
+
+        return {
+            success: true,
+            output,
+            sourceBytes,
+            hex: bytesToHex(sourceBytes),
+            errors: [],
+            warnings: [],
+        };
+    } catch (error) {
+        return failedResponse([
+            createConversionError(
+                "DECODE_FAILED",
+                error,
+                "HEXのバイト列をデコードできませんでした。",
             ),
         ]);
     }

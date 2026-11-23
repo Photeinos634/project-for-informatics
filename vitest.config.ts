@@ -1,3 +1,4 @@
+﻿
 import { defineConfig } from "vitest/config";
 import { fileURLToPath } from "node:url";
 import { dirname, resolve } from "node:path";
@@ -19,6 +20,8 @@ export default defineConfig({
             "tests/encoding/encodingInitializer.test.ts",
             "tests/encoding/encodingMetadata.test.ts",
             "tests/encoding/encodingResolver.test.ts",
+            "tests/encoding/encodingDetection.test.ts",
+            "tests/encoding/repairCandidates.test.ts",
             "tests/encoding/engines/**/*.test.ts",
             "tests/unicode/**/*.test.ts",
         ],
