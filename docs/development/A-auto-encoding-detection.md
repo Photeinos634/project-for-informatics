@@ -1,7 +1,7 @@
 # A-auto-encoding-detection
 
 ## 担当
-A担当（Frontend / UI）
+A担当（Frontend & UI）
 
 ## 概要
 バイト列またはHEX入力に対する文字コード候補を表示し、候補選択をC担当へ渡すUIを定義する。
